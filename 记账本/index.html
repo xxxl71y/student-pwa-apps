@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#6C5CE7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="记账本">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<title>大学生记账本</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --primary:#6C5CE7;--primary-dark:#5849C2;--primary-light:#A29BFE;
+  --income:#00B894;--expense:#E17055;--bg:#F0F0FF;--card:#fff;
+  --text:#2D3436;--text-light:#636E72;--border:#DFE6E9;
+  --radius:16px;--shadow:0 4px 20px rgba(108,92,231,.1);
+}
+html,body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body{max-width:480px;margin:0 auto;padding-bottom:100px;position:relative}
+.header{background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;padding:24px 20px 20px;border-radius:0 0 24px 24px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
+.header h1{font-size:22px;font-weight:700;letter-spacing:.5px}
+.header .month-nav{display:flex;align-items:center;justify-content:space-between;margin-top:12px}
+.month-btn{background:rgba(255,255,255,.2);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s}
+.month-btn:active{background:rgba(255,255,255,.35)}
+.month-title{font-size:16px;font-weight:600}
+.stats-row{display:flex;gap:10px;padding:16px 16px 0}
+.stat-card{flex:1;background:var(--card);border-radius:var(--radius);padding:14px 12px;box-shadow:var(--shadow);text-align:center;position:relative;overflow:hidden}
+.stat-card .label{font-size:11px;color:var(--text-light);margin-bottom:4px}
+.stat-card .amount{font-size:18px;font-weight:700}
+.stat-card.income .amount{color:var(--income)}
+.stat-card.expense .amount{color:var(--expense)}
+.stat-card.balance .amount{color:var(--primary)}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius) var(--radius) 0 0}
+.stat-card.income::before{background:var(--income)}
+.stat-card.expense::before{background:var(--expense)}
+.stat-card.balance::before{background:var(--primary)}
+.section-title{font-size:16px;font-weight:700;margin:20px 16px 12px;display:flex;align-items:center;gap:8px}
+.section-title .dot{width:6px;height:6px;border-radius:50%;background:var(--primary)}
+.record-list{padding:0 16px}
+.record-item{background:var(--card);border-radius:12px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,.04);transition:transform .15s}
+.record-item:active{transform:scale(.98)}
+.record-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.record-icon.income{background:rgba(0,184,148,.12);color:var(--income)}
+.record-icon.expense{background:rgba(225,112,85,.12);color:var(--expense)}
+.record-info{flex:1;min-width:0}
+.record-info .cat{font-size:14px;font-weight:600;margin-bottom:2px}
+.record-info .note{font-size:12px;color:var(--text-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.record-info .date{font-size:11px;color:var(--text-light)}
+.record-amount{font-size:16px;font-weight:700;flex-shrink:0}
+.record-amount.income{color:var(--income)}
+.record-amount.expense{color:var(--expense)}
+.record-delete{background:none;border:none;color:#DDD;font-size:20px;width:28px;height:28px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:color .2s}
+.record-delete:active{color:var(--expense)}
+.empty{text-align:center;padding:40px 20px;color:var(--text-light)}
+.empty .icon{font-size:48px;margin-bottom:8px;opacity:.5}
+.empty .text{font-size:14px}
+.pie-section{padding:16px;margin-top:8px}
+.pie-card{background:var(--card);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+.pie-container{display:flex;align-items:center;gap:20px;flex-wrap:wrap;justify-content:center}
+#pieChart{flex-shrink:0}
+.pie-legend{flex:1;min-width:120px}
+.legend-item{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px}
+.legend-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0}
+.legend-name{flex:1;color:var(--text-light)}
+.legend-value{font-weight:600}
+.fab{position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;border:none;font-size:28px;cursor:pointer;box-shadow:0 4px 16px rgba(108,92,231,.4);z-index:200;display:flex;align-items:center;justify-content:center;transition:transform .2s}
+.fab:active{transform:scale(.9)}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300;display:none;align-items:flex-end;justify-content:center;animation:fadeIn .2s}
+.modal-overlay.active{display:flex}
+.modal{background:var(--card);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px 20px 32px;animation:slideUp .3s ease}
+.modal h2{text-align:center;font-size:20px;margin-bottom:20px}
+.type-toggle{display:flex;gap:8px;margin-bottom:16px}
+.type-btn{flex:1;padding:12px;border:2px solid var(--border);background:var(--card);border-radius:12px;font-size:15px;font-weight:600;color:var(--text-light);cursor:pointer;transition:all .2s}
+.type-btn.active.expense{border-color:var(--expense);color:var(--expense);background:rgba(225,112,85,.08)}
+.type-btn.active.income{border-color:var(--income);color:var(--income);background:rgba(0,184,148,.08)}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:13px;color:var(--text-light);margin-bottom:6px;font-weight:500}
+.form-input{width:100%;padding:12px 14px;border:2px solid var(--border);border-radius:12px;font-size:16px;color:var(--text);background:var(--bg);transition:border-color .2s;outline:none}
+.form-input:focus{border-color:var(--primary)}
+.category-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.cat-item{text-align:center;padding:8px 4px;border:2px solid var(--border);border-radius:10px;cursor:pointer;font-size:12px;transition:all .15s}
+.cat-item.active{border-color:var(--primary);background:rgba(108,92,231,.08);color:var(--primary);font-weight:600}
+.cat-item .emoji{font-size:22px;display:block;margin-bottom:2px}
+.modal-actions{display:flex;gap:12px;margin-top:20px}
+.btn-primary{flex:1;padding:14px;background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer}
+.btn-primary:active{opacity:.85}
+.btn-cancel{flex:1;padding:14px;background:var(--bg);color:var(--text-light);border:none;border-radius:12px;font-size:16px;cursor:pointer}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:rgba(45,52,54,.9);color:#fff;padding:10px 20px;border-radius:24px;font-size:14px;z-index:400;animation:toastIn .3s}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,-20px)}to{opacity:1;transform:translate(-50%,0)}}
+@media(max-width:360px){.category-grid{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>📊 大学生记账本</h1>
+  <div class="month-nav">
+    <button class="month-btn" onclick="changeMonth(-1)">‹</button>
+    <span class="month-title" id="monthTitle"></span>
+    <button class="month-btn" onclick="changeMonth(1)">›</button>
+  </div>
+</div>
+
+<div class="stats-row">
+  <div class="stat-card income"><div class="label">收入</div><div class="amount" id="totalIncome">¥0</div></div>
+  <div class="stat-card expense"><div class="label">支出</div><div class="amount" id="totalExpense">¥0</div></div>
+  <div class="stat-card balance"><div class="label">结余</div><div class="amount" id="totalBalance">¥0</div></div>
+</div>
+
+<div class="section-title"><span class="dot"></span>支出分类</div>
+<div class="pie-section">
+  <div class="pie-card">
+    <div class="pie-container" id="pieContainer">
+      <svg id="pieChart" width="160" height="160" viewBox="0 0 42 42"></svg>
+      <div class="pie-legend" id="pieLegend"></div>
+    </div>
+    <div class="empty" id="pieEmpty" style="display:none">
+      <div class="icon">🥧</div>
+      <div class="text">本月暂无支出数据</div>
+    </div>
+  </div>
+</div>
+
+<div class="section-title"><span class="dot"></span>本月记录</div>
+<div class="record-list" id="recordList"></div>
+<div class="empty" id="recordEmpty" style="display:none">
+  <div class="icon">📝</div>
+  <div class="text">本月还没有记录，点击右下角按钮开始记账</div>
+</div>
+
+<button class="fab" onclick="openModal()">+</button>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h2 id="modalTitle">记一笔</h2>
+    <div class="type-toggle">
+      <button class="type-btn expense active" data-type="expense" onclick="selectType('expense')">支出</button>
+      <button class="type-btn income" data-type="income" onclick="selectType('income')">收入</button>
+    </div>
+    <div class="form-group">
+      <label>金额</label>
+      <input type="number" class="form-input" id="amountInput" placeholder="0.00" step="0.01" min="0" inputmode="decimal">
+    </div>
+    <div class="form-group">
+      <label>分类</label>
+      <div class="category-grid" id="categoryGrid"></div>
+    </div>
+    <div class="form-group">
+      <label>备注（选填）</label>
+      <input type="text" class="form-input" id="noteInput" placeholder="买了个啥...">
+    </div>
+    <div class="form-group">
+      <label>日期</label>
+      <input type="date" class="form-input" id="dateInput">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">取消</button>
+      <button class="btn-primary" onclick="saveRecord()">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const CATEGORIES = {
+  expense: [
+    {emoji:'🍔',name:'餐饮'},{emoji:'🚇',name:'交通'},{emoji:'📚',name:'学习'},
+    {emoji:'🛒',name:'购物'},{emoji:'🎮',name:'娱乐'},{emoji:'🏠',name:'住房'},
+    {emoji:'💊',name:'医疗'},{emoji:'👥',name:'社交'}
+  ],
+  income: [
+    {emoji:'💰',name:'生活费'},{emoji:'💪',name:'兼职'},{emoji:'🏆',name:'奖学金'},
+    {emoji:'🎁',name:'红包'},{emoji:'📈',name:'理财'},{emoji:'🔁',name:'其他'}
+  ]
+};
+const PIE_COLORS = ['#E17055','#FDCB6E','#00B894','#6C5CE7','#0984E3','#00CEC9','#FD79A8','#A29BFE'];
+
+let records = JSON.parse(localStorage.getItem('records') || '[]');
+let currentType = 'expense';
+let selectedCategory = '';
+let viewYear, viewMonth;
+let editingId = null;
+
+const today = new Date();
+viewYear = today.getFullYear();
+viewMonth = today.getMonth();
+
+function init() {
+  document.getElementById('dateInput').value = today.toISOString().slice(0,10);
+  renderAll();
+  renderCategoryGrid();
+}
+
+function saveData() {
+  localStorage.setItem('records', JSON.stringify(records));
+}
+
+function getMonthRecords() {
+  return records.filter(r => {
+    const d = new Date(r.date);
+    return d.getFullYear() === viewYear && d.getMonth() === viewMonth;
+  }).sort((a,b) => new Date(b.date) - new Date(a.date) || b.id - a.id);
+}
+
+function renderAll() {
+  const monthNames = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+  document.getElementById('monthTitle').textContent = `${viewYear}年 ${monthNames[viewMonth]}`;
+
+  const monthRecs = getMonthRecords();
+  let income = 0, expense = 0;
+  monthRecs.forEach(r => {
+    if (r.type === 'income') income += r.amount;
+    else expense += r.amount;
+  });
+
+  document.getElementById('totalIncome').textContent = '¥' + income.toFixed(2);
+  document.getElementById('totalExpense').textContent = '¥' + expense.toFixed(2);
+  document.getElementById('totalBalance').textContent = '¥' + (income - expense).toFixed(2);
+
+  renderRecordList(monthRecs);
+  renderPieChart(monthRecs);
+}
+
+function renderRecordList(recs) {
+  const list = document.getElementById('recordList');
+  const empty = document.getElementById('recordEmpty');
+  if (recs.length === 0) {
+    list.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  list.innerHTML = recs.map(r => {
+    const cat = CATEGORIES[r.type].find(c => c.name === r.category) || {emoji:'📝'};
+    const sign = r.type === 'income' ? '+' : '-';
+    return `<div class="record-item">
+      <div class="record-icon ${r.type}">${cat.emoji}</div>
+      <div class="record-info">
+        <div class="cat">${r.category}</div>
+        <div class="note">${r.note || '无备注'}</div>
+        <div class="date">${r.date}</div>
+      </div>
+      <div class="record-amount ${r.type}">${sign}¥${r.amount.toFixed(2)}</div>
+      <button class="record-delete" onclick="deleteRecord(${r.id})">×</button>
+    </div>`;
+  }).join('');
+}
+
+function renderPieChart(recs) {
+  const svg = document.getElementById('pieChart');
+  const legend = document.getElementById('pieLegend');
+  const empty = document.getElementById('pieEmpty');
+  const container = document.getElementById('pieContainer');
+
+  const expenses = recs.filter(r => r.type === 'expense');
+  if (expenses.length === 0) {
+    svg.style.display = 'none';
+    legend.style.display = 'none';
+    empty.style.display = 'block';
+    return;
+  }
+
+  svg.style.display = '';
+  legend.style.display = '';
+  empty.style.display = 'none';
+
+  const byCat = {};
+  expenses.forEach(r => { byCat[r.category] = (byCat[r.category] || 0) + r.amount; });
+  const sorted = Object.entries(byCat).sort((a,b) => b[1] - a[1]);
+  const total = sorted.reduce((s, [,v]) => s + v, 0);
+
+  let cumulative = 0;
+  let slices = '';
+  sorted.forEach(([name, value], i) => {
+    const pct = value / total;
+    const startAngle = cumulative * 2 * Math.PI;
+    const endAngle = (cumulative + pct) * 2 * Math.PI;
+    cumulative += pct;
+    const largeArc = pct > 0.5 ? 1 : 0;
+    const x1 = 21 + 15.915 * Math.cos(startAngle - Math.PI/2);
+    const y1 = 21 + 15.915 * Math.sin(startAngle - Math.PI/2);
+    const x2 = 21 + 15.915 * Math.cos(endAngle - Math.PI/2);
+    const y2 = 21 + 15.915 * Math.sin(endAngle - Math.PI/2);
+    const color = PIE_COLORS[i % PIE_COLORS.length];
+    if (pct >= 1) {
+      slices += `<circle cx="21" cy="21" r="15.915" fill="${color}"/>`;
+    } else {
+      slices += `<path d="M21,21 L${x1.toFixed(2)},${y1.toFixed(2)} A15.915,15.915 0 ${largeArc} 1 ${x2.toFixed(2)},${y2.toFixed(2)} Z" fill="${color}"/>`;
+    }
+  });
+  svg.innerHTML = slices + `<circle cx="21" cy="21" r="8" fill="#fff"/><text x="21" y="20" text-anchor="middle" font-size="6" fill="#2D3436" font-weight="bold">支出</text><text x="21" y="26" text-anchor="middle" font-size="5" fill="#636E72">¥${total.toFixed(0)}</text>`;
+
+  legend.innerHTML = sorted.map(([name, value], i) => {
+    const color = PIE_COLORS[i % PIE_COLORS.length];
+    const pct = (value / total * 100).toFixed(1);
+    return `<div class="legend-item">
+      <div class="legend-dot" style="background:${color}"></div>
+      <div class="legend-name">${name} ${pct}%</div>
+      <div class="legend-value">¥${value.toFixed(2)}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderCategoryGrid() {
+  const grid = document.getElementById('categoryGrid');
+  const cats = CATEGORIES[currentType];
+  selectedCategory = '';
+  grid.innerHTML = cats.map(c =>
+    `<div class="cat-item" data-cat="${c.name}" onclick="selectCategory('${c.name}',this)">
+      <span class="emoji">${c.emoji}</span>${c.name}
+    </div>`
+  ).join('');
+}
+
+function selectType(type) {
+  currentType = type;
+  document.querySelectorAll('.type-btn').forEach(b => {
+    b.classList.remove('active');
+    if (b.dataset.type === type) b.classList.add('active');
+  });
+  renderCategoryGrid();
+}
+
+function selectCategory(name, el) {
+  selectedCategory = name;
+  document.querySelectorAll('.cat-item').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function openModal(id) {
+  editingId = id || null;
+  if (id) {
+    const r = records.find(x => x.id === id);
+    if (r) {
+      selectType(r.type);
+      setTimeout(() => {
+        document.querySelectorAll('.cat-item').forEach(c => {
+          if (c.dataset.cat === r.category) {
+            c.classList.add('active');
+            selectedCategory = r.category;
+          }
+        });
+      }, 0);
+      document.getElementById('amountInput').value = r.amount;
+      document.getElementById('noteInput').value = r.note || '';
+      document.getElementById('dateInput').value = r.date;
+      document.getElementById('modalTitle').textContent = '编辑记录';
+    }
+  } else {
+    document.getElementById('amountInput').value = '';
+    document.getElementById('noteInput').value = '';
+    document.getElementById('dateInput').value = today.toISOString().slice(0,10);
+    document.getElementById('modalTitle').textContent = '记一笔';
+    renderCategoryGrid();
+  }
+  document.getElementById('modal').classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('active');
+  editingId = null;
+}
+
+function saveRecord() {
+  const amount = parseFloat(document.getElementById('amountInput').value);
+  const note = document.getElementById('noteInput').value.trim();
+  const date = document.getElementById('dateInput').value;
+
+  if (!amount || amount <= 0) {
+    showToast('请输入有效金额');
+    return;
+  }
+  if (!selectedCategory) {
+    showToast('请选择分类');
+    return;
+  }
+  if (!date) {
+    showToast('请选择日期');
+    return;
+  }
+
+  if (editingId) {
+    const idx = records.findIndex(r => r.id === editingId);
+    if (idx > -1) {
+      records[idx] = {...records[idx], type: currentType, amount, category: selectedCategory, note, date};
+    }
+  } else {
+    records.push({
+      id: Date.now(),
+      type: currentType,
+      amount,
+      category: selectedCategory,
+      note,
+      date
+    });
+  }
+
+  saveData();
+  renderAll();
+  closeModal();
+  showToast(editingId ? '已更新' : '已保存 ✓');
+}
+
+function deleteRecord(id) {
+  records = records.filter(r => r.id !== id);
+  saveData();
+  renderAll();
+  showToast('已删除');
+}
+
+function changeMonth(delta) {
+  viewMonth += delta;
+  if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+  if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+  renderAll();
+}
+
+function showToast(msg) {
+  const old = document.querySelector('.toast');
+  if (old) old.remove();
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2000);
+}
+
+document.getElementById('modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
+
+init();
+</script>
+</body>
+</html>
