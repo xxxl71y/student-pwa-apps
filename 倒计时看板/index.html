@@ -27,9 +27,6 @@ body{max-width:520px;margin:0 auto;padding-bottom:100px;position:relative}
 .header{background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;padding:24px 20px 20px;border-radius:0 0 24px 24px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
 .header h1{font-size:22px;font-weight:700;letter-spacing:.5px;margin-bottom:4px}
 .header .subtitle{font-size:13px;opacity:.85}
-.filter-row{display:flex;gap:8px;padding:14px 16px 0;overflow-x:auto;-webkit-overflow-scrolling:touch}
-.filter-btn{padding:7px 16px;background:var(--card);border:2px solid var(--border);border-radius:24px;font-size:13px;font-weight:500;color:var(--text-light);cursor:pointer;white-space:nowrap;transition:all .2s;flex-shrink:0}
-.filter-btn.active{border-color:var(--primary);background:rgba(0,184,148,.1);color:var(--primary);font-weight:600}
 
 .section-title{font-size:15px;font-weight:700;margin:14px 16px 10px;display:flex;align-items:center;gap:8px}
 .section-title .dot{width:6px;height:6px;border-radius:50%;background:var(--primary)}
@@ -102,20 +99,20 @@ body{max-width:520px;margin:0 auto;padding-bottom:100px;position:relative}
   <div class="subtitle">所有截止日期，一目了然</div>
 </div>
 
-<div class="filter-row">
-  <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">全部</button>
-  <button class="filter-btn" data-filter="考试" onclick="setFilter('考试')">考试</button>
-  <button class="filter-btn" data-filter="作业" onclick="setFilter('作业')">作业</button>
-  <button class="filter-btn" data-filter="活动" onclick="setFilter('活动')">活动</button>
-  <button class="filter-btn" data-filter="其他" onclick="setFilter('其他')">其他</button>
-</div>
-
 <div class="section-title">
   <span class="dot"></span>
-  <span>事件列表</span>
-  <span class="count" id="totalCount"></span>
+  <span>进行中</span>
+  <span class="count" id="activeCount"></span>
 </div>
-<div class="card-list" id="cardList"></div>
+<div class="card-list" id="activeList"></div>
+
+<div class="section-title" id="historyTitle" style="display:none">
+  <span class="dot" style="background:var(--expired)"></span>
+  <span>历史事件</span>
+  <span class="count" id="historyCount"></span>
+</div>
+<div class="card-list" id="historyList"></div>
+
 <div class="empty" id="emptyState" style="display:none">
   <div class="icon">📋</div>
   <div class="text">还没有任何 DDL，点击右下角按钮添加</div>
@@ -162,7 +159,6 @@ events.forEach(e => {
   }
 });
 
-let currentFilter = 'all';
 let selectedCategory = '考试';
 let editingId = null;
 
@@ -230,25 +226,36 @@ function renderAll() {
     return da - db;
   });
 
-  const filtered = currentFilter === 'all' ? sorted : sorted.filter(e => e.category === currentFilter);
-  document.getElementById('totalCount').textContent = filtered.length + ' 项';
-  renderCards(filtered);
+  const active = sorted.filter(e => getMsUntil(e.datetime || e.date + 'T23:59') >= 0);
+  const expired = sorted.filter(e => getMsUntil(e.datetime || e.date + 'T23:59') < 0);
+
+  document.getElementById('activeCount').textContent = active.length + ' 项';
+  renderCards(active, 'activeList');
+
+  const historyTitle = document.getElementById('historyTitle');
+  if (expired.length > 0) {
+    historyTitle.style.display = '';
+    document.getElementById('historyCount').textContent = expired.length + ' 项';
+    renderCards(expired, 'historyList');
+  } else {
+    historyTitle.style.display = 'none';
+    document.getElementById('historyList').innerHTML = '';
+  }
+
+  const empty = document.getElementById('emptyState');
+  if (active.length === 0 && expired.length === 0) {
+    empty.style.display = 'block';
+  } else {
+    empty.style.display = 'none';
+  }
 }
 
-function renderCards(list) {
-  const container = document.getElementById('cardList');
-  const empty = document.getElementById('emptyState');
+function renderCards(list, containerId) {
+  const container = document.getElementById(containerId);
   if (list.length === 0) {
     container.innerHTML = '';
-    empty.style.display = 'block';
-    if (events.length > 0 && currentFilter !== 'all') {
-      empty.querySelector('.text').textContent = '该分类下暂无 DDL';
-    } else {
-      empty.querySelector('.text').textContent = '还没有任何 DDL，点击右下角按钮添加';
-    }
     return;
   }
-  empty.style.display = 'none';
   container.innerHTML = list.map(e => {
     const dt = e.datetime || (e.date + 'T23:59');
     const ms = getMsUntil(dt);
@@ -288,13 +295,6 @@ function selectCategory(name, el) {
   selectedCategory = name;
   document.querySelectorAll('.cat-tag').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
-}
-
-function setFilter(filter) {
-  currentFilter = filter;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  document.querySelector(`.filter-btn[data-filter="${filter}"]`).classList.add('active');
-  renderAll();
 }
 
 function openModal(id) {
