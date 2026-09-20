@@ -15,8 +15,10 @@
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{
   --primary:#00B894;--primary-dark:#00A385;--primary-light:#00CEC9;
-  --danger:#E17055;--danger-light:#FDCB6E;--warning:#FDCB6E;
-  --success:#00B894;--expired:#B2BEC3;
+  --danger:#FF6B6B;--danger-bg:#FFF0F0;
+  --warning:#FDAB3D;--warning-bg:#FFF8EC;
+  --success:#00B894;--success-bg:#E8F8F5;
+  --expired:#B2BEC3;--expired-bg:#F5F6F7;
   --bg:#F0FFFA;--card:#fff;--text:#2D3436;--text-light:#636E72;
   --border:#DFE6E9;--radius:16px;--shadow:0 4px 20px rgba(0,184,148,.08);
 }
@@ -25,53 +27,53 @@ body{max-width:520px;margin:0 auto;padding-bottom:100px;position:relative}
 .header{background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;padding:24px 20px 20px;border-radius:0 0 24px 24px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
 .header h1{font-size:22px;font-weight:700;letter-spacing:.5px;margin-bottom:4px}
 .header .subtitle{font-size:13px;opacity:.85}
-.filter-row{display:flex;gap:8px;padding:16px 16px 0;overflow-x:auto;-webkit-overflow-scrolling:touch}
-.filter-btn{padding:8px 16px;background:var(--card);border:2px solid var(--border);border-radius:24px;font-size:13px;font-weight:500;color:var(--text-light);cursor:pointer;white-space:nowrap;transition:all .2s;flex-shrink:0}
+.filter-row{display:flex;gap:8px;padding:14px 16px 0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.filter-btn{padding:7px 16px;background:var(--card);border:2px solid var(--border);border-radius:24px;font-size:13px;font-weight:500;color:var(--text-light);cursor:pointer;white-space:nowrap;transition:all .2s;flex-shrink:0}
 .filter-btn.active{border-color:var(--primary);background:rgba(0,184,148,.1);color:var(--primary);font-weight:600}
-.summary-row{display:flex;gap:10px;padding:12px 16px 0}
-.summary-card{flex:1;background:var(--card);border-radius:var(--radius);padding:12px;box-shadow:var(--shadow);text-align:center}
-.summary-card .num{font-size:24px;font-weight:800}
-.summary-card .label{font-size:11px;color:var(--text-light);margin-top:2px}
-.summary-card.urgent .num{color:var(--danger)}
-.summary-card.normal .num{color:var(--warning)}
-.summary-card.soon .num{color:var(--primary)}
-.summary-card.expired .num{color:var(--expired)}
-.section-title{font-size:16px;font-weight:700;margin:16px 16px 12px;display:flex;align-items:center;gap:8px}
+
+.section-title{font-size:15px;font-weight:700;margin:14px 16px 10px;display:flex;align-items:center;gap:8px}
 .section-title .dot{width:6px;height:6px;border-radius:50%;background:var(--primary)}
-.section-title .count{font-size:13px;color:var(--text-light);font-weight:400;margin-left:auto}
+.section-title .count{font-size:12px;color:var(--text-light);font-weight:400;margin-left:auto}
+
 .card-list{padding:0 16px}
-.ddl-card{background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 12px rgba(0,0,0,.04);transition:transform .15s;position:relative;overflow:hidden}
+
+.ddl-card{border-radius:var(--radius);padding:18px 16px;margin-bottom:12px;display:flex;flex-direction:column;gap:12px;box-shadow:0 2px 12px rgba(0,0,0,.04);transition:transform .15s;position:relative;overflow:hidden;border-left:5px solid}
 .ddl-card:active{transform:scale(.98)}
-.ddl-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px}
-.ddl-card.urgent::before{background:var(--danger)}
-.ddl-card.soon::before{background:var(--warning)}
-.ddl-card.normal::before{background:var(--success)}
-.ddl-card.expired{opacity:.6}
-.ddl-card.expired::before{background:var(--expired)}
-.ddl-card.expired .ddl-name{text-decoration:line-through;color:var(--expired)}
-.countdown-circle{width:64px;height:64px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;font-weight:800}
-.countdown-circle.urgent{background:rgba(225,112,85,.12);color:var(--danger)}
-.countdown-circle.soon{background:rgba(253,203,110,.15);color:#D4A017}
-.countdown-circle.normal{background:rgba(0,184,148,.12);color:var(--primary)}
-.countdown-circle.expired{background:rgba(178,190,193,.12);color:var(--expired)}
-.countdown-circle .days{font-size:22px;line-height:1}
-.countdown-circle .unit{font-size:10px;margin-top:2px}
+.ddl-card.urgent{background:var(--danger-bg);border-left-color:var(--danger)}
+.ddl-card.soon{background:var(--warning-bg);border-left-color:var(--warning)}
+.ddl-card.normal{background:var(--success-bg);border-left-color:var(--success)}
+.ddl-card.expired{background:var(--expired-bg);border-left-color:var(--expired);opacity:.7}
+
+.ddl-top{display:flex;align-items:flex-start;gap:12px}
 .ddl-info{flex:1;min-width:0}
-.ddl-info .ddl-name{font-size:15px;font-weight:600;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ddl-info .ddl-name{font-size:17px;font-weight:700;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ddl-info .ddl-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .tag{font-size:11px;padding:2px 8px;border-radius:6px;font-weight:500}
-.tag.考试{background:rgba(225,112,85,.12);color:var(--danger)}
-.tag.作业{background:rgba(108,92,231,.12);color:#6C5CE7}
-.tag.活动{background:rgba(0,184,148,.12);color:var(--primary)}
-.tag.其他{background:rgba(253,203,110,.15);color:#D4A017}
+.tag.考试{background:rgba(255,107,107,.15);color:var(--danger)}
+.tag.作业{background:rgba(108,92,231,.15);color:#6C5CE7}
+.tag.活动{background:rgba(0,184,148,.15);color:var(--primary)}
+.tag.其他{background:rgba(253,171,61,.15);color:var(--warning)}
 .ddl-date{font-size:12px;color:var(--text-light)}
-.ddl-delete{background:none;border:none;color:#DDD;font-size:20px;width:28px;height:28px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:color .2s}
-.ddl-delete:active{color:var(--danger)}
+.ddl-delete{background:rgba(0,0,0,.05);border:none;color:var(--text-light);font-size:18px;width:30px;height:30px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+.ddl-delete:active{background:var(--danger);color:#fff}
+
+.countdown-big{text-align:center;padding:4px 0}
+.countdown-big .num{font-size:48px;font-weight:900;line-height:1;letter-spacing:-2px}
+.countdown-big.urgent .num{color:var(--danger)}
+.countdown-big.soon .num{color:var(--warning)}
+.countdown-big.normal .num{color:var(--success)}
+.countdown-big.expired .num{color:var(--expired)}
+.countdown-big .unit{font-size:14px;font-weight:600;color:var(--text-light);margin-top:4px}
+.countdown-big .time{font-size:12px;color:var(--text-light);margin-top:2px}
+.ddl-card.expired .ddl-name{text-decoration:line-through;color:var(--expired)}
+
 .empty{text-align:center;padding:40px 20px;color:var(--text-light)}
 .empty .icon{font-size:48px;margin-bottom:8px;opacity:.5}
 .empty .text{font-size:14px}
+
 .fab{position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;border:none;font-size:28px;cursor:pointer;box-shadow:0 4px 16px rgba(0,184,148,.4);z-index:200;display:flex;align-items:center;justify-content:center;transition:transform .2s}
 .fab:active{transform:scale(.9)}
+
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300;display:none;align-items:flex-end;justify-content:center;animation:fadeIn .2s}
 .modal-overlay.active{display:flex}
 .modal{background:var(--card);border-radius:24px 24px 0 0;width:100%;max-width:520px;padding:24px 20px 32px;animation:slideUp .3s ease;max-height:90vh;overflow-y:auto}
@@ -83,12 +85,6 @@ body{max-width:520px;margin:0 auto;padding-bottom:100px;position:relative}
 .category-tags{display:flex;gap:8px;flex-wrap:wrap}
 .cat-tag{padding:8px 16px;border:2px solid var(--border);border-radius:20px;font-size:13px;cursor:pointer;transition:all .15s;color:var(--text-light)}
 .cat-tag.active{border-color:var(--primary);background:rgba(0,184,148,.1);color:var(--primary);font-weight:600}
-.priority-row{display:flex;gap:8px}
-.priority-btn{flex:1;padding:10px;border:2px solid var(--border);border-radius:10px;font-size:13px;cursor:pointer;background:var(--card);color:var(--text-light);transition:all .15s}
-.priority-btn.active{font-weight:600}
-.priority-btn.active[data-priority="high"]{border-color:var(--danger);color:var(--danger);background:rgba(225,112,85,.08)}
-.priority-btn.active[data-priority="mid"]{border-color:var(--warning);color:#D4A017;background:rgba(253,203,110,.1)}
-.priority-btn.active[data-priority="low"]{border-color:var(--success);color:var(--success);background:rgba(0,184,148,.08)}
 .modal-actions{display:flex;gap:12px;margin-top:20px}
 .btn-primary{flex:1;padding:14px;background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer}
 .btn-primary:active{opacity:.85}
@@ -114,16 +110,9 @@ body{max-width:520px;margin:0 auto;padding-bottom:100px;position:relative}
   <button class="filter-btn" data-filter="其他" onclick="setFilter('其他')">其他</button>
 </div>
 
-<div class="summary-row">
-  <div class="summary-card urgent"><div class="num" id="urgentCount">0</div><div class="label">紧急 ≤3天</div></div>
-  <div class="summary-card soon"><div class="num" id="soonCount">0</div><div class="label">临近 ≤7天</div></div>
-  <div class="summary-card normal"><div class="num" id="normalCount">0</div><div class="label">正常</div></div>
-  <div class="summary-card expired"><div class="num" id="expiredCount">0</div><div class="label">已过期</div></div>
-</div>
-
 <div class="section-title">
   <span class="dot"></span>
-  <span>倒计时列表</span>
+  <span>事件列表</span>
   <span class="count" id="totalCount"></span>
 </div>
 <div class="card-list" id="cardList"></div>
@@ -142,8 +131,8 @@ body{max-width:520px;margin:0 auto;padding-bottom:100px;position:relative}
       <input type="text" class="form-input" id="nameInput" placeholder="如：高数期末考试" maxlength="50">
     </div>
     <div class="form-group">
-      <label>截止日期</label>
-      <input type="date" class="form-input" id="dateInput">
+      <label>截止时间</label>
+      <input type="datetime-local" class="form-input" id="datetimeInput">
     </div>
     <div class="form-group">
       <label>分类</label>
@@ -165,12 +154,23 @@ const CATEGORIES = [
 ];
 
 let events = JSON.parse(localStorage.getItem('ddl_events') || '[]');
+
+// 迁移旧数据：只有date没有datetime的补T23:59
+events.forEach(e => {
+  if (e.date && !e.datetime) {
+    e.datetime = e.date + 'T23:59';
+  }
+});
+
 let currentFilter = 'all';
 let selectedCategory = '考试';
 let editingId = null;
 
 function init() {
-  document.getElementById('dateInput').value = new Date().toISOString().slice(0,10);
+  const now = new Date();
+  const offset = now.getTimezoneOffset() * 60000;
+  const localISO = new Date(now - offset).toISOString().slice(0,16);
+  document.getElementById('datetimeInput').value = localISO;
   renderCategoryTags();
   renderAll();
 }
@@ -179,49 +179,59 @@ function saveData() {
   localStorage.setItem('ddl_events', JSON.stringify(events));
 }
 
-function getDaysUntil(dateStr) {
-  const target = new Date(dateStr + 'T23:59:59');
-  const now = new Date();
-  now.setHours(0,0,0,0);
-  const diff = target - now;
-  return Math.ceil(diff / (1000 * 60 * 60 * 24));
+function getMsUntil(datetimeStr) {
+  const target = new Date(datetimeStr);
+  return target - new Date();
 }
 
-function getUrgency(days) {
+function getUrgency(ms) {
+  const days = ms / (1000 * 60 * 60 * 24);
   if (days < 0) return 'expired';
   if (days <= 3) return 'urgent';
   if (days <= 7) return 'soon';
   return 'normal';
 }
 
-function getUrgencyLabel(urgency) {
-  return {urgent:'紧急',soon:'临近',normal:'正常',expired:'过期'}[urgency];
+function formatCountdown(ms) {
+  const absMs = Math.abs(ms);
+  const days = Math.floor(absMs / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((absMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  
+  if (ms < 0) {
+    if (days === 0 && hours === 0) {
+      const mins = Math.floor(absMs / (1000 * 60));
+      return {num: mins, unit: '分钟前', time: '已过期'};
+    }
+    return {num: days, unit: '天前', time: hours > 0 ? `${hours}小时前` : '已过期'};
+  }
+  if (days === 0) {
+    if (hours === 0) {
+      const mins = Math.max(1, Math.floor(absMs / (1000 * 60)));
+      return {num: mins, unit: '分钟后', time: '今天截止'};
+    }
+    return {num: hours, unit: '小时后', time: '今天截止'};
+  }
+  return {num: days, unit: '天后', time: hours > 0 ? `还剩${days}天${hours}小时` : ''};
+}
+
+function formatDateTime(datetimeStr) {
+  const d = new Date(datetimeStr);
+  const month = d.getMonth() + 1;
+  const day = d.getDate();
+  const hours = String(d.getHours()).padStart(2, '0');
+  const mins = String(d.getMinutes()).padStart(2, '0');
+  return `${month}月${day}日 ${hours}:${mins}`;
 }
 
 function renderAll() {
   const sorted = [...events].sort((a, b) => {
-    const da = getDaysUntil(a.date);
-    const db = getDaysUntil(b.date);
+    const da = getMsUntil(a.datetime || a.date + 'T23:59');
+    const db = getMsUntil(b.datetime || b.date + 'T23:59');
     return da - db;
   });
 
-  let urgent=0, soon=0, normal=0, expired=0;
-  sorted.forEach(e => {
-    const d = getDaysUntil(e.date);
-    const u = getUrgency(d);
-    if (u === 'urgent') urgent++;
-    else if (u === 'soon') soon++;
-    else if (u === 'normal') normal++;
-    else expired++;
-  });
-  document.getElementById('urgentCount').textContent = urgent;
-  document.getElementById('soonCount').textContent = soon;
-  document.getElementById('normalCount').textContent = normal;
-  document.getElementById('expiredCount').textContent = expired;
-
   const filtered = currentFilter === 'all' ? sorted : sorted.filter(e => e.category === currentFilter);
   document.getElementById('totalCount').textContent = filtered.length + ' 项';
-
   renderCards(filtered);
 }
 
@@ -240,29 +250,29 @@ function renderCards(list) {
   }
   empty.style.display = 'none';
   container.innerHTML = list.map(e => {
-    const days = getDaysUntil(e.date);
-    const urgency = getUrgency(days);
+    const dt = e.datetime || (e.date + 'T23:59');
+    const ms = getMsUntil(dt);
+    const urgency = getUrgency(ms);
     const cat = CATEGORIES.find(c => c.name === e.category) || CATEGORIES[3];
-    const dateObj = new Date(e.date + 'T23:59:59');
-    const dateStr = `${dateObj.getMonth()+1}月${dateObj.getDate()}日`;
-    let daysText, daysUnit;
-    if (days < 0) { daysText = Math.abs(days); daysUnit = '天前'; }
-    else if (days === 0) { daysText = '今天'; daysUnit = '截止'; }
-    else { daysText = days; daysUnit = '天后'; }
+    const cd = formatCountdown(ms);
+    const dateStr = formatDateTime(dt);
 
     return `<div class="ddl-card ${urgency}">
-      <div class="countdown-circle ${urgency}">
-        <div class="days">${daysText}</div>
-        <div class="unit">${daysUnit}</div>
-      </div>
-      <div class="ddl-info">
-        <div class="ddl-name">${e.name}</div>
-        <div class="ddl-meta">
-          <span class="tag ${cat.cls}">${cat.emoji} ${e.category}</span>
-          <span class="ddl-date">📅 ${dateStr}</span>
+      <div class="ddl-top">
+        <div class="ddl-info">
+          <div class="ddl-name">${e.name}</div>
+          <div class="ddl-meta">
+            <span class="tag ${cat.cls}">${cat.emoji} ${e.category}</span>
+            <span class="ddl-date">📅 ${dateStr}</span>
+          </div>
         </div>
+        <button class="ddl-delete" onclick="deleteEvent(${e.id})">×</button>
       </div>
-      <button class="ddl-delete" onclick="deleteEvent(${e.id})">×</button>
+      <div class="countdown-big ${urgency}">
+        <div class="num">${cd.num}</div>
+        <div class="unit">${cd.unit}</div>
+        ${cd.time ? `<div class="time">${cd.time}</div>` : ''}
+      </div>
     </div>`;
   }).join('');
 }
@@ -293,14 +303,17 @@ function openModal(id) {
     const e = events.find(x => x.id === id);
     if (e) {
       document.getElementById('nameInput').value = e.name;
-      document.getElementById('dateInput').value = e.date;
+      const dt = e.datetime || (e.date + 'T23:59');
+      document.getElementById('datetimeInput').value = dt;
       selectedCategory = e.category;
       renderCategoryTags();
       document.getElementById('modalTitle').textContent = '编辑 DDL';
     }
   } else {
     document.getElementById('nameInput').value = '';
-    document.getElementById('dateInput').value = new Date().toISOString().slice(0,10);
+    const now = new Date();
+    const offset = now.getTimezoneOffset() * 60000;
+    document.getElementById('datetimeInput').value = new Date(now - offset).toISOString().slice(0,16);
     selectedCategory = '考试';
     renderCategoryTags();
     document.getElementById('modalTitle').textContent = '添加 DDL';
@@ -316,29 +329,19 @@ function closeModal() {
 
 function saveEvent() {
   const name = document.getElementById('nameInput').value.trim();
-  const date = document.getElementById('dateInput').value;
+  const datetime = document.getElementById('datetimeInput').value;
 
-  if (!name) {
-    showToast('请输入事件名称');
-    return;
-  }
-  if (!date) {
-    showToast('请选择截止日期');
-    return;
-  }
+  if (!name) { showToast('请输入事件名称'); return; }
+  if (!datetime) { showToast('请选择截止时间'); return; }
 
   if (editingId) {
     const idx = events.findIndex(e => e.id === editingId);
     if (idx > -1) {
-      events[idx] = {...events[idx], name, date, category: selectedCategory};
+      events[idx] = {...events[idx], name, datetime, category: selectedCategory};
+      delete events[idx].date;
     }
   } else {
-    events.push({
-      id: Date.now(),
-      name,
-      date,
-      category: selectedCategory
-    });
+    events.push({ id: Date.now(), name, datetime, category: selectedCategory });
   }
 
   saveData();
