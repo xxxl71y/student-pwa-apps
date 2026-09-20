@@ -22,15 +22,22 @@
   --bg:#F0FFFA;--card:#fff;--text:#2D3436;--text-light:#636E72;
   --border:#DFE6E9;--radius:16px;--shadow:0 4px 20px rgba(0,184,148,.08);
 }
-html,body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
-body{max-width:520px;margin:0 auto;padding-bottom:100px;position:relative}
-.header{background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;padding:24px 20px 20px;border-radius:0 0 24px 24px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
+html,body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden}
+body{max-width:520px;margin:0 auto;display:flex;flex-direction:column;position:relative}
+.header{background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;padding:24px 20px 16px;border-radius:0 0 24px 24px;z-index:100;box-shadow:var(--shadow);flex-shrink:0}
 .header h1{font-size:22px;font-weight:700;letter-spacing:.5px;margin-bottom:4px}
 .header .subtitle{font-size:13px;opacity:.85}
 
-.section-title{font-size:15px;font-weight:700;margin:14px 16px 10px;display:flex;align-items:center;gap:8px}
-.section-title .dot{width:6px;height:6px;border-radius:50%;background:var(--primary)}
-.section-title .count{font-size:12px;color:var(--text-light);font-weight:400;margin-left:auto}
+.tab-bar{display:flex;gap:0;flex-shrink:0;padding:10px 16px 0}
+.tab-btn{flex:1;padding:10px;border:none;background:var(--card);border-radius:12px;font-size:14px;font-weight:600;color:var(--text-light);cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px}
+.tab-btn.active{color:var(--primary);box-shadow:0 2px 12px rgba(0,184,148,.15)}
+.tab-btn .badge{background:var(--border);color:var(--text-light);font-size:11px;padding:1px 7px;border-radius:10px;font-weight:600}
+.tab-btn.active .badge{background:rgba(0,184,148,.15);color:var(--primary)}
+
+.scroll-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:10px 0 80px}
+.scroll-area::-webkit-scrollbar{width:0}
+
+.section-title{font-size:13px;font-weight:600;margin:6px 16px 8px;color:var(--text-light)}
 
 .card-list{padding:0 16px}
 
@@ -99,23 +106,22 @@ body{max-width:520px;margin:0 auto;padding-bottom:100px;position:relative}
   <div class="subtitle">所有截止日期，一目了然</div>
 </div>
 
-<div class="section-title">
-  <span class="dot"></span>
-  <span>进行中</span>
-  <span class="count" id="activeCount"></span>
+<div class="tab-bar">
+  <button class="tab-btn active" id="tabActive" onclick="switchView('active')">进行中 <span class="badge" id="activeBadge">0</span></button>
+  <button class="tab-btn" id="tabHistory" onclick="switchView('history')">历史事件 <span class="badge" id="historyBadge">0</span></button>
 </div>
-<div class="card-list" id="activeList"></div>
 
-<div class="section-title" id="historyTitle" style="display:none">
-  <span class="dot" style="background:var(--expired)"></span>
-  <span>历史事件</span>
-  <span class="count" id="historyCount"></span>
-</div>
-<div class="card-list" id="historyList"></div>
-
-<div class="empty" id="emptyState" style="display:none">
-  <div class="icon">📋</div>
-  <div class="text">还没有任何 DDL，点击右下角按钮添加</div>
+<div class="scroll-area">
+  <div class="card-list" id="activeList"></div>
+  <div class="card-list" id="historyList" style="display:none"></div>
+  <div class="empty" id="emptyState" style="display:none">
+    <div class="icon">📋</div>
+    <div class="text">还没有任何 DDL，点击右下角按钮添加</div>
+  </div>
+  <div class="empty" id="emptyHistory" style="display:none">
+    <div class="icon">📦</div>
+    <div class="text">还没有历史事件</div>
+  </div>
 </div>
 
 <button class="fab" onclick="openModal()">+</button>
@@ -161,6 +167,7 @@ events.forEach(e => {
 
 let selectedCategory = '考试';
 let editingId = null;
+let currentView = 'active';
 
 function init() {
   const now = new Date();
@@ -219,6 +226,33 @@ function formatDateTime(datetimeStr) {
   return `${month}月${day}日 ${hours}:${mins}`;
 }
 
+function switchView(view) {
+  currentView = view;
+  document.getElementById('tabActive').classList.toggle('active', view === 'active');
+  document.getElementById('tabHistory').classList.toggle('active', view === 'history');
+  document.getElementById('activeList').style.display = view === 'active' ? '' : 'none';
+  document.getElementById('historyList').style.display = view === 'history' ? '' : 'none';
+  updateEmptyStates();
+}
+
+function updateEmptyStates() {
+  const emptyState = document.getElementById('emptyState');
+  const emptyHistory = document.getElementById('emptyHistory');
+  const activeList = document.getElementById('activeList');
+  const historyList = document.getElementById('historyList');
+
+  const hasActive = activeList.children.length > 0;
+  const hasHistory = historyList.children.length > 0;
+
+  if (currentView === 'active') {
+    emptyState.style.display = hasActive ? 'none' : 'block';
+    emptyHistory.style.display = 'none';
+  } else {
+    emptyState.style.display = 'none';
+    emptyHistory.style.display = hasHistory ? 'none' : 'block';
+  }
+}
+
 function renderAll() {
   const sorted = [...events].sort((a, b) => {
     const da = getMsUntil(a.datetime || a.date + 'T23:59');
@@ -229,25 +263,13 @@ function renderAll() {
   const active = sorted.filter(e => getMsUntil(e.datetime || e.date + 'T23:59') >= 0);
   const expired = sorted.filter(e => getMsUntil(e.datetime || e.date + 'T23:59') < 0);
 
-  document.getElementById('activeCount').textContent = active.length + ' 项';
+  document.getElementById('activeBadge').textContent = active.length;
+  document.getElementById('historyBadge').textContent = expired.length;
+
   renderCards(active, 'activeList');
+  renderCards(expired, 'historyList');
 
-  const historyTitle = document.getElementById('historyTitle');
-  if (expired.length > 0) {
-    historyTitle.style.display = '';
-    document.getElementById('historyCount').textContent = expired.length + ' 项';
-    renderCards(expired, 'historyList');
-  } else {
-    historyTitle.style.display = 'none';
-    document.getElementById('historyList').innerHTML = '';
-  }
-
-  const empty = document.getElementById('emptyState');
-  if (active.length === 0 && expired.length === 0) {
-    empty.style.display = 'block';
-  } else {
-    empty.style.display = 'none';
-  }
+  updateEmptyStates();
 }
 
 function renderCards(list, containerId) {
